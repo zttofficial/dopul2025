@@ -1,12 +1,18 @@
 {
 	"compiler": {
-		"version": "0.8.26+commit.8a97fa7a"
+		"version": "0.8.30+commit.73712a01"
 	},
 	"language": "Solidity",
 	"output": {
 		"abi": [
 			{
-				"inputs": [],
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "initialOwner",
+						"type": "address"
+					}
+				],
 				"stateMutability": "nonpayable",
 				"type": "constructor"
 			},
@@ -189,9 +195,9 @@
 				"anonymous": false,
 				"inputs": [
 					{
-						"indexed": false,
+						"indexed": true,
 						"internalType": "address",
-						"name": "user",
+						"name": "recipient",
 						"type": "address"
 					},
 					{
@@ -199,22 +205,53 @@
 						"internalType": "uint256",
 						"name": "amount",
 						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "assetType",
+						"type": "string"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "weight",
+						"type": "uint256"
 					}
 				],
-				"name": "DpmsRewarded",
+				"name": "DPMSRewardIssued",
 				"type": "event"
 			},
 			{
 				"anonymous": false,
 				"inputs": [
 					{
+						"indexed": true,
+						"internalType": "string",
+						"name": "assetType",
+						"type": "string"
+					},
+					{
 						"indexed": false,
+						"internalType": "uint256",
+						"name": "newFee",
+						"type": "uint256"
+					}
+				],
+				"name": "MintingFeeUpdated",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
 						"internalType": "uint256",
 						"name": "tokenId",
 						"type": "uint256"
 					},
 					{
-						"indexed": false,
+						"indexed": true,
 						"internalType": "address",
 						"name": "creator",
 						"type": "address"
@@ -224,6 +261,18 @@
 						"internalType": "string",
 						"name": "name",
 						"type": "string"
+					},
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "assetType",
+						"type": "string"
+					},
+					{
+						"indexed": false,
+						"internalType": "enum DopulNFT.NFTStatus",
+						"name": "status",
+						"type": "uint8"
 					}
 				],
 				"name": "NFTMinted",
@@ -233,7 +282,7 @@
 				"anonymous": false,
 				"inputs": [
 					{
-						"indexed": false,
+						"indexed": true,
 						"internalType": "uint256",
 						"name": "tokenId",
 						"type": "uint256"
@@ -246,31 +295,6 @@
 					}
 				],
 				"name": "NFTStatusUpdated",
-				"type": "event"
-			},
-			{
-				"anonymous": false,
-				"inputs": [
-					{
-						"indexed": false,
-						"internalType": "uint256",
-						"name": "tokenId",
-						"type": "uint256"
-					},
-					{
-						"indexed": false,
-						"internalType": "address",
-						"name": "validator",
-						"type": "address"
-					},
-					{
-						"indexed": false,
-						"internalType": "bool",
-						"name": "vote",
-						"type": "bool"
-					}
-				],
-				"name": "NFTValidated",
 				"type": "event"
 			},
 			{
@@ -296,13 +320,19 @@
 				"anonymous": false,
 				"inputs": [
 					{
-						"indexed": false,
-						"internalType": "uint8",
-						"name": "newRequiredApprovals",
-						"type": "uint8"
+						"indexed": true,
+						"internalType": "address",
+						"name": "oldAddress",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "newAddress",
+						"type": "address"
 					}
 				],
-				"name": "RequiredApprovalsUpdated",
+				"name": "ProjectWalletAddressUpdated",
 				"type": "event"
 			},
 			{
@@ -334,9 +364,9 @@
 				"anonymous": false,
 				"inputs": [
 					{
-						"indexed": false,
+						"indexed": true,
 						"internalType": "address",
-						"name": "validator",
+						"name": "validatorAddress",
 						"type": "address"
 					}
 				],
@@ -347,9 +377,9 @@
 				"anonymous": false,
 				"inputs": [
 					{
-						"indexed": false,
+						"indexed": true,
 						"internalType": "address",
-						"name": "validator",
+						"name": "validatorAddress",
 						"type": "address"
 					}
 				],
@@ -357,13 +387,161 @@
 				"type": "event"
 			},
 			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "uint256",
+						"name": "tokenId",
+						"type": "uint256"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "validator",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "enum DopulNFT.Vote",
+						"name": "vote",
+						"type": "uint8"
+					},
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "comment",
+						"type": "string"
+					}
+				],
+				"name": "VoteSubmitted",
+				"type": "event"
+			},
+			{
 				"inputs": [],
-				"name": "NUM_VALIDATORS",
+				"name": "DPMS_BONUS_V1",
 				"outputs": [
 					{
-						"internalType": "uint8",
+						"internalType": "uint256",
 						"name": "",
-						"type": "uint8"
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "DPMS_BONUS_V2",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "DPMS_BONUS_V3",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "DPMS_BONUS_V4",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "DPMS_BONUS_V5",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "DPMS_GOLD_PER_GRAM",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "DPMS_SILVER_PER_TROY_OZ",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "MAX_DPMS_REWARD_PER_MINT",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "MAX_VALIDATORS",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "TROY_OZ_TO_GRAMS_SCALED",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
 					}
 				],
 				"stateMutability": "view",
@@ -439,6 +617,19 @@
 				"type": "function"
 			},
 			{
+				"inputs": [],
+				"name": "getAllValidators",
+				"outputs": [
+					{
+						"internalType": "address[]",
+						"name": "",
+						"type": "address[]"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
 				"inputs": [
 					{
 						"internalType": "uint256",
@@ -461,11 +652,11 @@
 				"inputs": [
 					{
 						"internalType": "address",
-						"name": "_user",
+						"name": "_account",
 						"type": "address"
 					}
 				],
-				"name": "getDpmsBalance",
+				"name": "getDPMSTokenBalance",
 				"outputs": [
 					{
 						"internalType": "uint256",
@@ -488,6 +679,11 @@
 				"outputs": [
 					{
 						"components": [
+							{
+								"internalType": "address",
+								"name": "creator",
+								"type": "address"
+							},
 							{
 								"internalType": "string",
 								"name": "name",
@@ -539,24 +735,14 @@
 								"type": "bool"
 							},
 							{
-								"internalType": "string[]",
-								"name": "imageURIs",
-								"type": "string[]"
+								"internalType": "string",
+								"name": "issuer",
+								"type": "string"
 							},
 							{
-								"internalType": "address",
-								"name": "creatorId",
-								"type": "address"
-							},
-							{
-								"internalType": "uint8",
-								"name": "trueVotes",
-								"type": "uint8"
-							},
-							{
-								"internalType": "uint8",
-								"name": "falseVotes",
-								"type": "uint8"
+								"internalType": "string",
+								"name": "metadataURI",
+								"type": "string"
 							},
 							{
 								"internalType": "enum DopulNFT.NFTStatus",
@@ -564,7 +750,7 @@
 								"type": "uint8"
 							}
 						],
-						"internalType": "struct DopulNFT.NFTMetadata",
+						"internalType": "struct DopulNFT.NFTData",
 						"name": "",
 						"type": "tuple"
 					}
@@ -580,12 +766,17 @@
 						"type": "uint256"
 					}
 				],
-				"name": "getNFTStatus",
+				"name": "getTotalVotes",
 				"outputs": [
 					{
-						"internalType": "enum DopulNFT.NFTStatus",
-						"name": "",
-						"type": "uint8"
+						"internalType": "uint256",
+						"name": "yes",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "no",
+						"type": "uint256"
 					}
 				],
 				"stateMutability": "view",
@@ -597,45 +788,24 @@
 						"internalType": "uint256",
 						"name": "_tokenId",
 						"type": "uint256"
-					}
-				],
-				"name": "getValidatorVotes",
-				"outputs": [
-					{
-						"internalType": "address[]",
-						"name": "",
-						"type": "address[]"
 					},
 					{
-						"internalType": "bool[]",
-						"name": "",
-						"type": "bool[]"
+						"internalType": "address",
+						"name": "_validator",
+						"type": "address"
 					}
 				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [],
-				"name": "getValidators",
+				"name": "getValidatorVote",
 				"outputs": [
 					{
-						"internalType": "address[]",
-						"name": "",
-						"type": "address[]"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [],
-				"name": "goldDpmsRewardPerGram",
-				"outputs": [
+						"internalType": "enum DopulNFT.Vote",
+						"name": "voteType",
+						"type": "uint8"
+					},
 					{
-						"internalType": "uint256",
-						"name": "",
-						"type": "uint256"
+						"internalType": "string",
+						"name": "comment",
+						"type": "string"
 					}
 				],
 				"stateMutability": "view",
@@ -667,6 +837,30 @@
 			},
 			{
 				"inputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"name": "isValidator",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_to",
+						"type": "address"
+					},
 					{
 						"internalType": "string",
 						"name": "_name",
@@ -718,9 +912,14 @@
 						"type": "bool"
 					},
 					{
-						"internalType": "string[]",
-						"name": "_imageURIs",
-						"type": "string[]"
+						"internalType": "string",
+						"name": "_issuer",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "_metadataURI",
+						"type": "string"
 					}
 				],
 				"name": "mintNFT",
@@ -734,11 +933,6 @@
 						"internalType": "string",
 						"name": "",
 						"type": "string"
-					},
-					{
-						"internalType": "uint256",
-						"name": "",
-						"type": "uint256"
 					}
 				],
 				"name": "mintingFees",
@@ -771,10 +965,63 @@
 						"internalType": "uint256",
 						"name": "",
 						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
 					}
 				],
-				"name": "nftMetadata",
+				"name": "nftValidatorComments",
 				"outputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"name": "nftValidatorVotes",
+				"outputs": [
+					{
+						"internalType": "enum DopulNFT.Vote",
+						"name": "",
+						"type": "uint8"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"name": "nfts",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "creator",
+						"type": "address"
+					},
 					{
 						"internalType": "string",
 						"name": "name",
@@ -826,24 +1073,38 @@
 						"type": "bool"
 					},
 					{
-						"internalType": "address",
-						"name": "creatorId",
-						"type": "address"
+						"internalType": "string",
+						"name": "issuer",
+						"type": "string"
 					},
 					{
-						"internalType": "uint8",
-						"name": "trueVotes",
-						"type": "uint8"
-					},
-					{
-						"internalType": "uint8",
-						"name": "falseVotes",
-						"type": "uint8"
+						"internalType": "string",
+						"name": "metadataURI",
+						"type": "string"
 					},
 					{
 						"internalType": "enum DopulNFT.NFTStatus",
 						"name": "status",
 						"type": "uint8"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"name": "noVotesCount",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
 					}
 				],
 				"stateMutability": "view",
@@ -882,6 +1143,19 @@
 				"type": "function"
 			},
 			{
+				"inputs": [],
+				"name": "projectWalletAddress",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
 				"inputs": [
 					{
 						"internalType": "address",
@@ -899,19 +1173,6 @@
 				"name": "renounceOwnership",
 				"outputs": [],
 				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
-				"inputs": [],
-				"name": "requiredApprovals",
-				"outputs": [
-					{
-						"internalType": "uint8",
-						"name": "",
-						"type": "uint8"
-					}
-				],
-				"stateMutability": "view",
 				"type": "function"
 			},
 			{
@@ -986,89 +1247,37 @@
 			{
 				"inputs": [
 					{
-						"internalType": "uint256",
-						"name": "_reward",
-						"type": "uint256"
+						"internalType": "address",
+						"name": "_newAddress",
+						"type": "address"
 					}
 				],
-				"name": "setGoldDpmsRewardPerGram",
+				"name": "setProjectWalletAddress",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
 			},
 			{
 				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_tokenId",
+						"type": "uint256"
+					},
+					{
+						"internalType": "enum DopulNFT.Vote",
+						"name": "_vote",
+						"type": "uint8"
+					},
 					{
 						"internalType": "string",
-						"name": "_assetType",
+						"name": "_comment",
 						"type": "string"
-					},
-					{
-						"internalType": "uint256",
-						"name": "_quantity",
-						"type": "uint256"
-					},
-					{
-						"internalType": "uint256",
-						"name": "_feeInUSD",
-						"type": "uint256"
 					}
 				],
-				"name": "setMintingFee",
+				"name": "submitVote",
 				"outputs": [],
 				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "uint8",
-						"name": "_requiredApprovals",
-						"type": "uint8"
-					}
-				],
-				"name": "setRequiredApprovals",
-				"outputs": [],
-				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "uint256",
-						"name": "_reward",
-						"type": "uint256"
-					}
-				],
-				"name": "setSilverDpmsRewardPerOz",
-				"outputs": [],
-				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "uint256",
-						"name": "_reward",
-						"type": "uint256"
-					}
-				],
-				"name": "setValidatorDpmsReward",
-				"outputs": [],
-				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
-				"inputs": [],
-				"name": "silverDpmsRewardPerOz",
-				"outputs": [
-					{
-						"internalType": "uint256",
-						"name": "",
-						"type": "uint256"
-					}
-				],
-				"stateMutability": "view",
 				"type": "function"
 			},
 			{
@@ -1123,6 +1332,19 @@
 				"type": "function"
 			},
 			{
+				"inputs": [],
+				"name": "totalSupply",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
 				"inputs": [
 					{
 						"internalType": "address",
@@ -1161,56 +1383,19 @@
 			{
 				"inputs": [
 					{
-						"internalType": "uint256",
-						"name": "_tokenId",
-						"type": "uint256"
+						"internalType": "string",
+						"name": "_assetType",
+						"type": "string"
 					},
 					{
-						"internalType": "bool",
-						"name": "_vote",
-						"type": "bool"
+						"internalType": "uint256",
+						"name": "_newFee",
+						"type": "uint256"
 					}
 				],
-				"name": "validateNFT",
+				"name": "updateMintingFee",
 				"outputs": [],
 				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
-				"inputs": [],
-				"name": "validatorDpmsReward",
-				"outputs": [
-					{
-						"internalType": "uint256",
-						"name": "",
-						"type": "uint256"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "uint256",
-						"name": "",
-						"type": "uint256"
-					},
-					{
-						"internalType": "address",
-						"name": "",
-						"type": "address"
-					}
-				],
-				"name": "validatorVotes",
-				"outputs": [
-					{
-						"internalType": "bool",
-						"name": "",
-						"type": "bool"
-					}
-				],
-				"stateMutability": "view",
 				"type": "function"
 			},
 			{
@@ -1231,9 +1416,29 @@
 				],
 				"stateMutability": "view",
 				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"name": "yesVotesCount",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
 			}
 		],
 		"devdoc": {
+			"details": "Deploys an ERC721 NFT contract for the Dopul project, representing real-world assets like gold and silver. This contract adds NFT status management, validator voting functionality, transfers minting fees to a project wallet address, and provides DPMS rewards to minters with risk control.",
 			"errors": {
 				"ERC721IncorrectOwner(address,uint256,address)": [
 					{
@@ -1326,17 +1531,92 @@
 			},
 			"kind": "dev",
 			"methods": {
+				"addValidator(address)": {
+					"details": "Adds a validator address.",
+					"params": {
+						"_validator": "Address of the validator to be added."
+					}
+				},
 				"approve(address,uint256)": {
 					"details": "See {IERC721-approve}."
 				},
 				"balanceOf(address)": {
 					"details": "See {IERC721-balanceOf}."
 				},
+				"constructor": {
+					"details": "Contract constructor. Initializes the ERC721 contract, sets the owner, and default project wallet address.",
+					"params": {
+						"initialOwner": "Address of the initial owner of the contract."
+					}
+				},
+				"getAllValidators()": {
+					"details": "Retrieves a list of all registered validator addresses.",
+					"returns": {
+						"_0": "An array containing all validator addresses."
+					}
+				},
 				"getApproved(uint256)": {
 					"details": "See {IERC721-getApproved}."
 				},
+				"getDPMSTokenBalance(address)": {
+					"details": "Retrieves the DPMS balance for a specified address.",
+					"params": {
+						"_account": "The address to query."
+					},
+					"returns": {
+						"_0": "The DPMS balance of the specified address."
+					}
+				},
+				"getNFTDetails(uint256)": {
+					"details": "Retrieves all detailed information for a specific NFT.",
+					"params": {
+						"_tokenId": "NFT's Token ID."
+					},
+					"returns": {
+						"_0": "NFTData A struct containing all NFT data."
+					}
+				},
+				"getTotalVotes(uint256)": {
+					"details": "Retrieves the total Yes and No vote counts for a specific NFT.",
+					"params": {
+						"_tokenId": "NFT's Token ID."
+					},
+					"returns": {
+						"no": "The count of No votes.",
+						"yes": "The count of Yes votes."
+					}
+				},
+				"getValidatorVote(uint256,address)": {
+					"details": "Retrieves the vote and comment of a specific validator for a given NFT.",
+					"params": {
+						"_tokenId": "NFT's Token ID.",
+						"_validator": "Validator's address."
+					},
+					"returns": {
+						"comment": "The comment string.",
+						"voteType": "The vote type (Vote)."
+					}
+				},
 				"isApprovedForAll(address,address)": {
 					"details": "See {IERC721-isApprovedForAll}."
+				},
+				"mintNFT(address,string,string,uint256,string,string,uint256,string,uint256,uint256,bool,string,string)": {
+					"details": "Mints a new NFT. This function is payable, meaning it can receive ETH.",
+					"params": {
+						"_assetCountry": "Country of origin for the asset.",
+						"_assetName": "Specific name of the asset.",
+						"_assetType": "Type of asset.",
+						"_assetYear": "Year of the asset.",
+						"_creatorCountry": "Country of the creator.",
+						"_isFungible": "Whether the asset is fungible (True/False).",
+						"_issuer": "Issuer of the asset.",
+						"_metadataURI": "IPFS URI pointing to the NFT metadata.",
+						"_name": "Name of the NFT.",
+						"_purityPercentage": "Purity percentage, scaled by 1000 (fixed-point).",
+						"_quantity": "Quantity.",
+						"_to": "Receiver address of the NFT.",
+						"_weightGrams": "Weight in grams, scaled by 10000 (fixed-point)."
+					}
 				},
 				"name()": {
 					"details": "See {IERC721Metadata-name}."
@@ -1346,6 +1626,12 @@
 				},
 				"ownerOf(uint256)": {
 					"details": "See {IERC721-ownerOf}."
+				},
+				"removeValidator(address)": {
+					"details": "Removes a validator address.",
+					"params": {
+						"_validator": "Address of the validator to be removed."
+					}
 				},
 				"renounceOwnership()": {
 					"details": "Leaves the contract without owner. It will not be possible to call `onlyOwner` functions. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby disabling any functionality that is only available to the owner."
@@ -1359,6 +1645,20 @@
 				"setApprovalForAll(address,bool)": {
 					"details": "See {IERC721-setApprovalForAll}."
 				},
+				"setProjectWalletAddress(address)": {
+					"details": "Updates the project wallet address. Only the contract owner can call this function.",
+					"params": {
+						"_newAddress": "The new project wallet address."
+					}
+				},
+				"submitVote(uint256,uint8,string)": {
+					"details": "Allows a validator to submit a vote for an NFT.",
+					"params": {
+						"_comment": "Comment if the vote is 'No'; can be empty otherwise.",
+						"_tokenId": "Token ID of the NFT to vote on.",
+						"_vote": "Type of vote (Yes or No)."
+					}
+				},
 				"supportsInterface(bytes4)": {
 					"details": "See {IERC165-supportsInterface}."
 				},
@@ -1366,15 +1666,35 @@
 					"details": "See {IERC721Metadata-symbol}."
 				},
 				"tokenURI(uint256)": {
-					"details": "See {IERC721Metadata-tokenURI}."
+					"details": "Retrieves the URI for a token. Overrides ERC721's _baseURI and tokenURI to correctly return the stored metadataURI.",
+					"params": {
+						"tokenId": "The ID of the token."
+					},
+					"returns": {
+						"_0": "The URI for the token."
+					}
+				},
+				"totalSupply()": {
+					"details": "Retrieves the total number of NFTs currently minted.",
+					"returns": {
+						"_0": "The current value of the Token ID counter."
+					}
 				},
 				"transferFrom(address,address,uint256)": {
 					"details": "See {IERC721-transferFrom}."
 				},
 				"transferOwnership(address)": {
 					"details": "Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner."
+				},
+				"updateMintingFee(string,uint256)": {
+					"details": "Updates the minting fee for a specific asset type.",
+					"params": {
+						"_assetType": "Asset type for which to update the fee.",
+						"_newFee": "New minting fee (in Wei)."
+					}
 				}
 			},
+			"title": "DopulNFT",
 			"version": 1
 		},
 		"userdoc": {
@@ -1385,16 +1705,16 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"contracts/DopulNFT.sol": "DopulNFT"
+			"contracts/dupol.sol": "DopulNFT"
 		},
-		"evmVersion": "cancun",
+		"evmVersion": "prague",
 		"libraries": {},
 		"metadata": {
 			"bytecodeHash": "ipfs"
 		},
 		"optimizer": {
 			"enabled": true,
-			"runs": 200
+			"runs": 300
 		},
 		"remappings": [],
 		"viaIR": true
@@ -1449,11 +1769,11 @@
 			]
 		},
 		"@openzeppelin/contracts/token/ERC721/utils/ERC721Utils.sol": {
-			"keccak256": "0x40399695922383778f9f540a620bec475a2f8e0f08d41f0005682842e28a9855",
+			"keccak256": "0xddab643169f47a2c5291afafcbfdca045d9e6835553307d090bc048b6dabd0ac",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://746d295e403931aeb9d6065fd5a0871f43ab5459814a60623611e4b6641a09fd",
-				"dweb:/ipfs/QmWrgT8YJrQ9FfD1o3YYArwo57e7MGdpFKuM74qJ4qE34E"
+				"bzz-raw://d0ffbacfee42977167b3c75bd4787f8b72a7ab1176abd544f3dff662c6528e24",
+				"dweb:/ipfs/QmUprM1cWCyaQ3LDjHA2DhwiPs3wekQ6MWXHFZdMMxpcyX"
 			]
 		},
 		"@openzeppelin/contracts/utils/Context.sol": {
@@ -1481,11 +1801,11 @@
 			]
 		},
 		"@openzeppelin/contracts/utils/Strings.sol": {
-			"keccak256": "0x44f87e91783e88415bde66f1a63f6c7f0076f2d511548820407d5c95643ac56c",
+			"keccak256": "0x81c274a60a7ae232ae3dc9ff3a4011b4849a853c13b0832cd3351bb1bb2f0dae",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://13a51bc2b23827744dcf5bad10c69e72528cf015a6fe48c93632cdb2c0eb1251",
-				"dweb:/ipfs/QmZwPA47Yqgje1qtkdEFEja8ntTahMStYzKf5q3JRnaR7d"
+				"bzz-raw://9da0c20dc74358a2a76330818f3bac9d1e2ce3371aec847b9cbf5d147fbae4f6",
+				"dweb:/ipfs/QmeczhmnFv1hbXKGLwbYXY6Rrytc9a5A2YaRi5QMMgjPnb"
 			]
 		},
 		"@openzeppelin/contracts/utils/introspection/ERC165.sol": {
@@ -1505,11 +1825,11 @@
 			]
 		},
 		"@openzeppelin/contracts/utils/math/Math.sol": {
-			"keccak256": "0xa00be322d7db5786750ce0ac7e2f5b633ac30a5ed5fa1ced1e74acfc19acecea",
+			"keccak256": "0x1225214420c83ebcca88f2ae2b50f053aaa7df7bd684c3e878d334627f2edfc6",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://6c84e822f87cbdc4082533b626667b6928715bb2b1e8e7eb96954cebb9e38c8d",
-				"dweb:/ipfs/QmZmy9dgxLTerBAQDuuHqbL6EpgRxddqgv5KmwpXYVbKz1"
+				"bzz-raw://6c5fab4970634f9ab9a620983dc1c8a30153981a0b1a521666e269d0a11399d3",
+				"dweb:/ipfs/QmVRnBC575MESGkEHndjujtR7qub2FzU9RWy9eKLp4hPZB"
 			]
 		},
 		"@openzeppelin/contracts/utils/math/SafeCast.sol": {
@@ -1520,14 +1840,6 @@
 				"dweb:/ipfs/QmPFKL2r9CBsMwmUqqdcFPfHZB2qcs9g1HDrPxzWSxomvy"
 			]
 		},
-		"@openzeppelin/contracts/utils/math/SafeMath.sol": {
-			"keccak256": "0x58b21219689909c4f8339af00813760337f7e2e7f169a97fe49e2896dcfb3b9a",
-			"license": "MIT",
-			"urls": [
-				"bzz-raw://ef8e012e946dec20e59f2d4446f4b44bb098f3fa8bac103b1b5112fff777447b",
-				"dweb:/ipfs/QmVTooKWcLkJ9W68yNX4MgdrbAKiAXwuRN9A7f4NkdcdtQ"
-			]
-		},
 		"@openzeppelin/contracts/utils/math/SignedMath.sol": {
 			"keccak256": "0xb1970fac7b64e6c09611e6691791e848d5e3fe410fa5899e7df2e0afd77a99e3",
 			"license": "MIT",
@@ -1536,12 +1848,12 @@
 				"dweb:/ipfs/QmVUSvooZKEdEdap619tcJjTLcAuH6QBdZqAzWwnAXZAWJ"
 			]
 		},
-		"contracts/DopulNFT.sol": {
-			"keccak256": "0x194a33ce89c36473fcdbf2212f3f62da2fc3526c65c0836373505fdb7c85f9f6",
+		"contracts/dupol.sol": {
+			"keccak256": "0xa8edbfca15b7915364a0b9a9f46de799e417dcc867d667e7c636356501ec3543",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://33c0273eab3e92fdc066379e77e7f85487bd32636ab1c789abb22c801598d84d",
-				"dweb:/ipfs/QmVrREz9HoehwADDLXb4M1XHpknoes85yb91bgHdc697fj"
+				"bzz-raw://9b619b2b879b6aad1f08b331cf700c23bd871de011073b4b7f50bbb6319eaecf",
+				"dweb:/ipfs/QmUiBvSESkjizHrxEy3PSRuQJ69bBZ3cVQq18JeyMyaSEN"
 			]
 		}
 	},
