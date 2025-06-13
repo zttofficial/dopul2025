@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import './output.css';
-
 // --- Contract ABI and Address ---
 // IMPORTANT: The ABI is now imported from a separate JSON file.
 // Ensure 'DopulNFT.json' is located at 'src/contracts/DopulNFT.json' in your frontend project.
@@ -9,7 +8,7 @@ import NFT_CONTRACT_ABI_ARRAY from './contracts/DopulNFT.json'; // Import the di
 
 const NFT_CONTRACT_ABI = NFT_CONTRACT_ABI_ARRAY; // Use the imported array directly
 
-const NFT_CONTRACT_ADDRESS = '0x540b697be1494fcc1e53f257d5714e077198741d'; // !!! REPLACE WITH YOUR ACTUAL CONTRACT ADDRESS !!!
+const NFT_CONTRACT_ADDRESS = '0x67ee3cd9d703917cbc1e11e4e2182eda5e9df022'; // !!! REPLACE WITH YOUR ACTUAL CONTRACT ADDRESS !!!
 const SEPOLIA_CHAIN_ID_HEX = '0xaa36a7'; // Sepolia Testnet Chain ID in hexadecimal
 const SEPOLIA_CHAIN_ID_DECIMAL = 11155111; // Sepolia Testnet Chain ID in decimal, for direct comparison
 
@@ -56,7 +55,6 @@ function NFTMetadataForm() {
         if (typeof window.ethers !== 'undefined' && typeof window.ethereum !== 'undefined' && window.ethereum.isMetaMask && isCorrectNetwork) {
             try {
                 const provider = new window.ethers.BrowserProvider(window.ethereum);
-                // Use the extracted ABI array
                 const contract = new window.ethers.Contract(NFT_CONTRACT_ADDRESS, NFT_CONTRACT_ABI, provider);
                 const fee = await contract.mintingFees(assetType);
                 setMintingFee(fee.toString());
@@ -311,9 +309,12 @@ function NFTMetadataForm() {
             };
 
             // Call mintNFT with all parameters, including metadataURI from backend
-            // Ensure parameters match contract's mintNFT signature exactly
+            // Ensure parameters match contract's mintNFT signature exactly based on DopulNFT.json ABI
+            console.log("Contract Parameters for mintNFT:", contractParameters); // Log parameters
+            console.log("Metadata URI for mintNFT:", metadataURI); // Log metadata URI
+
             const tx = await nftContract.mintNFT(
-                contractParameters.to, // Changed to use 'to' from contractParameters
+                contractParameters.to, 
                 contractParameters.name,
                 contractParameters.assetType,
                 contractParameters.assetYear,
@@ -322,23 +323,50 @@ function NFTMetadataForm() {
                 contractParameters.weightGrams, 
                 contractParameters.assetName,
                 contractParameters.purityPercentage, 
-                contractParameters.quantity,
-                contractParameters.isFungible,
-                contractParameters.issuer,
-                metadataURI, // metadataURI comes directly from backendResult, not contractParameters
+                contractParameters.quantity,          
+                contractParameters.isFungible,        
+                contractParameters.issuer,            
+                metadataURI,                          
                 transactionOverrides 
             );
 
             setMintingStatus('Transaction sent. Waiting for confirmation...'); 
             const receipt = await tx.wait(); // Wait for transaction to be mined
 
-            // Access tokenId from logs if available, convert BigInt to string
-            const tokenId = receipt.logs
-                ? receipt.logs.find(log => log.topics && log.topics[0] === nftContract.interface.getEvent('NFTMinted').topic)
-                      ?.args?.tokenId?.toString() || 'N/A'
-                : 'N/A';
+            console.log("Transaction Receipt:", receipt); // Log the full receipt
+            console.log("Receipt Logs (Raw):", receipt.logs); // Log the raw logs
+            
+            // --- Improved Token ID Extraction ---
+            let extractedTokenId = 'N/A';
+            try {
+                // Get the interface to decode logs
+                const contractInterface = new window.ethers.Interface(NFT_CONTRACT_ABI);
+                
+                // Find the NFTMinted event directly from the receipt logs
+                // Iterate through logs and attempt to parse
+                for (const log of receipt.logs) {
+                    try {
+                        const parsedLog = contractInterface.parseLog(log);
+                        if (parsedLog && parsedLog.name === 'NFTMinted') {
+                            // Check if tokenId exists in args and is a BigInt
+                            if (parsedLog.args && parsedLog.args.tokenId !== undefined) {
+                                extractedTokenId = parsedLog.args.tokenId.toString(); // Convert BigInt to string
+                                console.log("Parsed NFTMinted Event Args:", parsedLog.args);
+                                break; // Found the event, no need to continue
+                            }
+                        }
+                    } catch (parseError) {
+                        // This log might not be from our contract or not a recognized event
+                        // console.warn("Could not parse log:", log, parseError);
+                    }
+                }
+            } catch (error) {
+                console.error("Error during token ID extraction:", error);
+            }
 
-            setMintingStatus(`Minting successful! Transaction Hash: ${receipt.hash}. NFT ID: ${tokenId}`); 
+            console.log("Extracted Token ID:", extractedTokenId); // Log the extracted Token ID
+
+            setMintingStatus(`Minting successful! Transaction Hash: ${receipt.hash}. NFT ID: ${extractedTokenId}`); 
             // Optional: Reset form fields after successful mint
             // setName(''); setIssuer(''); setAssetType('Silver'); setImageFile1(null); setImageFile2(null); etc.
 
