@@ -2,7 +2,6 @@
   "name": "dopul-frontend",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://localhost:3001",
   "dependencies": {
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
@@ -15,7 +14,8 @@
   "devDependencies": {
     "tailwindcss": "^3.4.4",      
     "postcss": "^8.4.38",         
-    "autoprefixer": "^10.4.19"     
+    "autoprefixer": "^10.4.19",
+    "eslint-config-react-app": "^7.0.1"
   },
   "scripts": {
     "start": "react-scripts start",

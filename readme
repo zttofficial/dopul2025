@@ -1,2 +1,110 @@
 This is update pdf v5 feb 2025
-get project to fast start
+
+## Project Structure
+
+```
+.
+├── backend/                  # Backend Service (Node.js/Express)
+│   ├── .env.example          # Environment variables example
+│   ├── package.json
+│   └── app.js                # Main backend application
+├── frontend/                 # Frontend Application (React)
+│   ├── public/
+│   ├── src/
+│   │   ├── contracts/        # Stores Smart Contract ABI
+│   │   │   └── DopulNFT.json # Smart Contract ABI file
+│   │   └── NFTMetadataForm.js # Main frontend component
+│   ├── package.json
+│   └── tailwind.config.js
+└── contracts/                # Smart Contract Source Code (Solidity)
+    └── DopulNFT.sol
+```
+
+## Running the Backend Service
+
+The backend service is responsible for handling IPFS file uploads (via Pinata) and NFT metadata generation.
+
+1. **Navigate to the backend directory**: Open your terminal or command prompt and navigate to the `backend` folder:
+
+   ```
+   cd path/to/your/project/backend
+   ```
+
+2. **Install dependencies**: Execute the following command to install all necessary Node.js modules:
+
+   ```
+   npm install
+   ```
+
+3. **Set up environment variables**:
+
+   - In the `backend` directory, you will find an `.env.example` file.
+   - **Copy it and rename it to `.env`**.
+   - Open the `.env` file and fill in your **Pinata API Key** and **Pinata Secret API Key**. You will need to obtain these keys from the Pinata website.
+   - Also, update `CONTRACT_ADDRESS` with the **address of your deployed DopulNFT smart contract** on the Sepolia testnet.
+
+   ```
+   PINATA_API_KEY=Your_Pinata_API_Key
+   PINATA_SECRET_API_KEY=Your_Pinata_Secret_API_Key
+   CONTRACT_ADDRESS=0x...Your_Smart_Contract_Address...
+   ```
+
+4. **Start the backend service**: Execute the following command to start the backend service:
+
+   ```
+   npm start
+   ```
+
+   The backend service typically runs on `http://localhost:3001`.
+
+## Running the Frontend Application
+
+The frontend application provides the user interface, allowing users to connect their wallets, input NFT information, and mint NFTs.
+
+1. **Navigate to the frontend directory**: Open a **new terminal or command prompt** and navigate to the `frontend` folder:
+
+   ```
+   cd path/to/your/project/frontend
+   ```
+
+2. **Install dependencies**: Execute the following command to install all necessary Node.js modules:
+
+   ```
+   npm install
+   ```
+
+3. **Update Smart Contract ABI and Address**:
+
+   - **ABI File**: Copy your **DopulNFT smart contract's ABI** (usually exported from Remix) to `frontend/src/contracts/DopulNFT.json`. Ensure this file exists and its content is correct.
+
+   - **Contract Address**: Open the `frontend/src/NFTMetadataForm.js` file. Find the `NFT_CONTRACT_ADDRESS` variable and replace its value with the **address of your deployed DopulNFT smart contract** on the Sepolia testnet.
+
+     ```
+     const NFT_CONTRACT_ADDRESS = '0x...Your_Smart_Contract_Address...'; // !!! REPLACE WITH YOUR ACTUAL CONTRACT ADDRESS !!!
+     ```
+
+   - **ABI Content**: As you've experienced ABI import issues before, please ensure the `NFT_CONTRACT_ABI` variable directly contains the **full JSON array content** from `DopulNFT.json`, instead of using an `import` statement for the file itself.
+
+     ```
+     const NFT_CONTRACT_ABI = [
+         // Paste the full content of your DopulNFT.json ABI here
+         { "inputs": [], "stateMutability": "nonpayable", "type": "constructor", "name": "constructor", "outputs": [] },
+         // ... other ABI content ...
+     ];
+     ```
+
+4. **Start Tailwind CSS Watcher** (in a separate terminal window): Open a **third terminal or command prompt**, navigate to the `frontend` folder, and run the Tailwind CSS watcher to compile your CSS:
+
+   ```
+   npm run tailwind:watch
+   ```
+
+   This will watch for changes in your code and automatically update `src/output.css`.
+
+5. **Start the Frontend Application** (in another separate terminal window): Open a **fourth terminal or command prompt**, navigate to the `frontend` folder, and run the React development server:
+
+   ```
+   npm start
+   ```
+
+   The frontend application typically runs on `http://localhost:3000`.
