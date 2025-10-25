@@ -557,172 +557,154 @@ function App() { // Renamed from NFTMetadataForm to App
                         </h1>
                     </div>
                     
-                    {!connectedAccount ? (
-                        <button 
-                            type="button" 
-                            className="flex items-center gap-2 px-6 py-3 text-sm rounded-xl text-white font-bold 
-                                       bg-gradient-to-r from-emerald-500 via-green-500 to-teal-600 
-                                       hover:shadow-[0_0_30px_rgba(16,185,129,0.6)] 
-                                       transition-all duration-300 ease-in-out shadow-lg hover:scale-105 
-                                       disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100" 
-                            onClick={connectWallet}
-                            disabled={isLoading}
-                        >
-                            {isLoading ? <div className="spinner"></div> : <icons.Wallet className="w-5 h-5" />}
-                            {isLoading ? 'Connecting...' : 'Connect Wallet'}
-                        </button>
-                    ) : (
-                        <button 
-                            onClick={() => setShowUserInfo(!showUserInfo)}
-                            className="flex items-center gap-3 px-5 py-3 rounded-xl bg-white/90 border-2 border-purple-400/60 backdrop-blur-sm hover:border-purple-500 hover:bg-white transition-all duration-300 shadow-lg hover:shadow-xl group"
-                        >
-                            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center shadow-md">
-                                <icons.Wallet className="w-5 h-5 text-white" />
-                            </div>
-                            <div className="text-left">
-                                <p className="text-xs text-purple-600 font-semibold">Connected</p>
-                                <p className="text-sm font-bold text-gray-800 font-mono">
-                                    {connectedAccount.substring(0, 6)}...{connectedAccount.substring(connectedAccount.length - 4)}
-                                </p>
-                            </div>
-                            <svg className={`w-5 h-5 text-purple-600 transition-transform duration-300 ${showUserInfo ? 'rotate-180' : ''}`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </button>
-                    )}
+                    <div className="relative">
+                        {!connectedAccount ? (
+                            <button 
+                                type="button" 
+                                className="flex items-center gap-2 px-6 py-3 text-sm rounded-xl text-white font-bold 
+                                           bg-gradient-to-r from-emerald-500 via-green-500 to-teal-600 
+                                           hover:shadow-[0_0_30px_rgba(16,185,129,0.6)] 
+                                           transition-all duration-300 ease-in-out shadow-lg hover:scale-105 
+                                           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100" 
+                                onClick={connectWallet}
+                                disabled={isLoading}
+                            >
+                                {isLoading ? <div className="spinner"></div> : <icons.Wallet className="w-5 h-5" />}
+                                {isLoading ? 'Connecting...' : 'Connect Wallet'}
+                            </button>
+                        ) : (
+                            <>
+                                <button 
+                                    onClick={() => setShowUserInfo(!showUserInfo)}
+                                    className="flex items-center gap-3 px-5 py-3 rounded-xl bg-white/90 border-2 border-purple-400/60 backdrop-blur-sm hover:border-purple-500 hover:bg-white transition-all duration-300 shadow-lg hover:shadow-xl group"
+                                >
+                                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center shadow-md">
+                                        <icons.Wallet className="w-5 h-5 text-white" />
+                                    </div>
+                                    <div className="text-left">
+                                        <p className="text-xs text-purple-600 font-semibold">Connected</p>
+                                        <p className="text-sm font-bold text-gray-800 font-mono">
+                                            {connectedAccount.substring(0, 6)}...{connectedAccount.substring(connectedAccount.length - 4)}
+                                        </p>
+                                    </div>
+                                    <svg className={`w-5 h-5 text-purple-600 transition-transform duration-300 ${showUserInfo ? 'rotate-180' : ''}`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+
+                                {/* User Info Panel - Dropdown positioned right below wallet button */}
+                                {showUserInfo && (
+                                    <div className="absolute top-full right-0 mt-2 w-80 animate-slideInFromRight">
+                                        <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-2xl border border-gray-200 overflow-hidden">
+                                            {/* User Header */}
+                                            <div className="px-4 py-3 bg-gradient-to-r from-purple-500 to-blue-600 border-b border-gray-200">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                                                        <icons.Wallet className="w-4 h-4 text-white" />
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <p className="text-white font-semibold text-sm">Connected Wallet</p>
+                                                        <button 
+                                                            onClick={() => {
+                                                                navigator.clipboard.writeText(connectedAccount);
+                                                                showToast('Address copied!', 'success');
+                                                            }}
+                                                            className="text-white/90 hover:text-white text-xs font-mono bg-white/10 hover:bg-white/20 px-2 py-1 rounded transition-colors cursor-pointer break-all text-left w-full"
+                                                            title="Click to copy full address"
+                                                        >
+                                                            {connectedAccount}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Menu Items */}
+                                            <div className="py-1">
+                                                {/* Network Status */}
+                                                <div className="px-4 py-3 flex items-center gap-3 text-gray-700">
+                                                    <icons.Network className="w-4 h-4" />
+                                                    <div className="flex-1">
+                                                        <span className="text-sm">Network</span>
+                                                        <p className={`text-xs ${isCorrectNetwork ? 'text-green-600' : 'text-orange-600'}`}>
+                                                            {isCorrectNetwork ? '✓ ' : '⚠ '}{connectedNetwork}
+                                                        </p>
+                                                    </div>
+                                                </div>
+
+                                                {/* Switch Network (if needed) */}
+                                                {!isCorrectNetwork && (
+                                                    <button 
+                                                        onClick={switchToSepolia}
+                                                        className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors flex items-center gap-3 text-orange-600"
+                                                    >
+                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                                        </svg>
+                                                        <span className="text-sm">Switch to Sepolia</span>
+                                                    </button>
+                                                )}
+
+                                                {/* DPMS Balance */}
+                                                <div className="px-4 py-3 flex items-center gap-3 text-gray-700">
+                                                    <icons.DollarSign className="w-4 h-4" />
+                                                    <div className="flex-1">
+                                                        <span className="text-sm">DPMS Balance</span>
+                                                        <p className="text-lg font-bold text-purple-600">{dpmsBalance}</p>
+                                                    </div>
+                                                </div>
+
+                                                {/* User Role */}
+                                                <div className="px-4 py-3 flex items-center gap-3 text-gray-700">
+                                                    <icons.UserCheck className="w-4 h-4" />
+                                                    <div className="flex-1">
+                                                        <span className="text-sm">Role</span>
+                                                        {isContractOwner && (
+                                                            <p className="text-sm font-semibold text-red-600 flex items-center gap-1">
+                                                                <icons.Settings className="w-3 h-3" />
+                                                                Contract Owner
+                                                            </p>
+                                                        )}
+                                                        {isValidator && !isContractOwner && (
+                                                            <p className="text-sm font-semibold text-purple-600 flex items-center gap-1">
+                                                                <icons.UserCheck className="w-3 h-3" />
+                                                                Validator
+                                                            </p>
+                                                        )}
+                                                        {!isValidator && !isContractOwner && (
+                                                            <p className="text-sm font-semibold text-gray-600 flex items-center gap-1">
+                                                                <icons.Wallet className="w-3 h-3" />
+                                                                Standard User
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                {/* Divider */}
+                                                <div className="border-t border-gray-100 my-1"></div>
+
+                                                {/* Disconnect */}
+                                                <button 
+                                                    onClick={() => {
+                                                        disconnectWallet();
+                                                        setShowUserInfo(false);
+                                                    }}
+                                                    className="w-full px-4 py-3 text-left hover:bg-red-50 transition-colors flex items-center gap-3 text-red-600"
+                                                >
+                                                    <icons.XCircle className="w-4 h-4" />
+                                                    <span className="text-sm">Disconnect</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </div>
                 </div>
             </header>
 
-            {/* User Info Panel - Collapsible */}
-            {showUserInfo && connectedAccount && (
-                <div className="relative z-10 w-full max-w-4xl mx-auto mb-6 animate-slideInFromRight">
-                    <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-2xl border-2 border-purple-400/60 p-5">
-                        {/* Compact Two-Column Layout */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                            {/* Left Column: Info */}
-                            <div className="space-y-4">
-                                {/* Wallet Address */}
-                                <div>
-                                    <h3 className="text-xs font-bold text-purple-600 uppercase tracking-wide mb-2 flex items-center gap-1.5">
-                                        <icons.Wallet className="w-3.5 h-3.5" />
-                                        Wallet Address
-                                    </h3>
-                                    <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-lg border border-purple-200 overflow-hidden">
-                                        <div className="p-3 border-b border-purple-100">
-                                            <p className="text-xs font-mono text-gray-800 break-all leading-relaxed">{connectedAccount}</p>
-                                        </div>
-                                        <button 
-                                            onClick={() => {
-                                                navigator.clipboard.writeText(connectedAccount);
-                                                showToast('Address copied!', 'success');
-                                            }}
-                                            className="w-full px-3 py-2 text-xs font-semibold text-purple-700 hover:text-purple-900 bg-purple-50 hover:bg-purple-100 transition-all flex items-center justify-center gap-2"
-                                        >
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                            </svg>
-                                            Copy Address
-                                        </button>
-                                    </div>
-                                </div>
-                                
-                                {/* Network Status */}
-                                <div>
-                                    <h3 className="text-xs font-bold text-purple-600 uppercase tracking-wide mb-2 flex items-center gap-1.5">
-                                        <icons.Network className="w-3.5 h-3.5" />
-                                        Network
-                                    </h3>
-                                    <div className={`rounded-lg p-3 border-2 ${isCorrectNetwork ? 'bg-green-50 border-green-300' : 'bg-orange-50 border-orange-300'}`}>
-                                        <p className={`text-sm font-bold ${isCorrectNetwork ? 'text-green-700' : 'text-orange-700'}`}>
-                                            {isCorrectNetwork ? '✓ ' : '⚠ '}{connectedNetwork}
-                                        </p>
-                                    </div>
-                                    {!isCorrectNetwork && (
-                                        <button 
-                                            onClick={switchToSepolia}
-                                            className="mt-2 w-full px-4 py-2 text-sm rounded-lg font-bold text-white bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 transition-all shadow-md flex items-center justify-center gap-2"
-                                        >
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                            </svg>
-                                            Switch Network
-                                        </button>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Right Column: Balance, Role & Action */}
-                            <div className="space-y-4">
-                                {/* DPMS Balance */}
-                                <div>
-                                    <h3 className="text-xs font-bold text-purple-600 uppercase tracking-wide mb-2 flex items-center gap-1.5">
-                                        <icons.DollarSign className="w-3.5 h-3.5" />
-                                        DPMS Balance
-                                    </h3>
-                                    <div className="bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg p-4 border-2 border-purple-300">
-                                        <p className="text-2xl font-extrabold text-center bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent leading-tight">
-                                            {dpmsBalance}
-                                        </p>
-                                    </div>
-                                </div>
-
-                                {/* User Role */}
-                                <div>
-                                    <h3 className="text-xs font-bold text-purple-600 uppercase tracking-wide mb-2 flex items-center gap-1.5">
-                                        <icons.UserCheck className="w-3.5 h-3.5" />
-                                        Role
-                                    </h3>
-                                    {isContractOwner && (
-                                        <div className="px-4 py-3 rounded-lg bg-gradient-to-r from-red-100 to-pink-200 border-2 border-red-300 shadow-md">
-                                            <p className="text-red-800 text-sm font-bold flex items-center justify-center gap-2">
-                                                <icons.Settings className="w-4 h-4" />
-                                                Contract Owner
-                                            </p>
-                                        </div>
-                                    )}
-                                    {isValidator && !isContractOwner && (
-                                        <div className="px-4 py-3 rounded-lg bg-gradient-to-r from-purple-100 to-blue-200 border-2 border-purple-300 shadow-md">
-                                            <p className="text-purple-800 text-sm font-bold flex items-center justify-center gap-2">
-                                                <icons.UserCheck className="w-4 h-4" />
-                                                Validator
-                                            </p>
-                                        </div>
-                                    )}
-                                    {!isValidator && !isContractOwner && (
-                                        <div className="px-4 py-3 rounded-lg bg-gradient-to-r from-gray-100 to-gray-300 border-2 border-gray-400 shadow-md">
-                                            <p className="text-gray-800 text-sm font-bold flex items-center justify-center gap-2">
-                                                <icons.Wallet className="w-4 h-4" />
-                                                Standard User
-                                            </p>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Disconnect Button */}
-                                <div className="pt-3">
-                                    <button 
-                                        onClick={() => {
-                                            disconnectWallet();
-                                            setShowUserInfo(false);
-                                        }}
-                                        className="w-full px-4 py-3 rounded-lg text-white font-bold text-sm
-                                                   bg-gradient-to-r from-rose-500 to-red-600 
-                                                   hover:from-rose-600 hover:to-red-700
-                                                   transition-all shadow-md hover:shadow-lg
-                                                   flex items-center justify-center gap-2"
-                                    >
-                                        <icons.XCircle className="w-5 h-5" />
-                                        Disconnect Wallet
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
-
             {/* Main Content Area */}
-            <main className="relative z-10 w-full max-w-4xl mx-auto glass-strong p-6 sm:p-8 rounded-2xl shadow-2xl transform hover:shadow-[0_20px_60px_rgba(0,0,0,0.3)] transition-all duration-500 ease-in-out">
+            <main className={`relative z-10 w-full max-w-4xl mx-auto glass-strong p-6 sm:p-8 rounded-2xl shadow-2xl transform hover:shadow-[0_20px_60px_rgba(0,0,0,0.3)] transition-all duration-500 ease-in-out ${showUserInfo && connectedAccount ? 'mt-96' : ''}`}>
                 {/* Tab Navigation (only for Mint and Validator) */}
                 {currentPage !== 'admin' && (
                     <div className="flex justify-center mb-8 gap-2">
