@@ -358,56 +358,71 @@ function MintingPage({
     return (
         <section className="col-span-full">
             <h2 className="sr-only">Mint New NFT Form</h2> {/* Hidden heading for accessibility */}
-            {/* Network Status and DPMS Balance */}
-            {connectedAccount && (
-                <div className="mb-6 space-y-3">
-                    <div className={`p-3 rounded-lg flex items-center gap-2 font-medium ${isCorrectNetwork ? 'bg-green-100 border-green-300 text-green-700' : 'bg-orange-100 border-orange-300 text-orange-700'}`}>
-                        <icons.Network className="w-5 h-5" />
-                        <span>Connected Network: <strong className="font-bold">{connectedNetwork}</strong></span>
-                        {!isCorrectNetwork && (
-                            <button 
-                                type="button" 
-                                onClick={switchToSepolia} 
-                                className="ml-auto px-4 py-1 rounded-full text-white font-semibold text-xs
-                                           bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 
-                                           transition-all duration-300 ease-in-out shadow-sm hover:shadow-md">
-                                Switch to Sepolia
-                            </button>
-                        )}
-                    </div>
-                    <div className="p-3 rounded-lg bg-purple-100 border-purple-300 text-purple-700 flex items-center gap-2 font-medium shadow-sm">
-                        <icons.DollarSign className="w-5 h-5" />
-                        <span>Your DPMS Balance: <strong className="font-bold">{dpmsBalance}</strong></span>
+            {/* Network Status */}
+            {connectedAccount && !isCorrectNetwork && (
+                <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-orange-500/20 to-yellow-500/20 border-2 border-orange-400/50 shadow-lg backdrop-blur-sm">
+                    <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 rounded-lg bg-orange-500">
+                                <icons.AlertTriangle className="w-5 h-5 text-white" />
+                            </div>
+                            <div>
+                                <p className="text-sm font-bold text-orange-800">Wrong Network</p>
+                                <p className="text-xs text-orange-700">Connected to: {connectedNetwork}</p>
+                            </div>
+                        </div>
+                        <button 
+                            type="button" 
+                            onClick={switchToSepolia} 
+                            className="px-5 py-2 rounded-xl text-white font-bold text-sm bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 transition-all shadow-md hover:shadow-lg"
+                        >
+                            Switch to Sepolia
+                        </button>
                     </div>
                 </div>
             )}
 
             {/* Minting Fee Display */}
-            <div className="text-lg font-bold text-blue-600 mb-6 p-3 bg-blue-50 rounded-lg border border-blue-200 flex items-center gap-2">
-                <icons.Info className="w-5 h-5" />
-                <span>Minting Fee for {assetType}: {typeof window.ethers !== 'undefined' ? window.ethers.formatEther(mintingFee || '0') : 'Loading...'} ETH</span>
+            <div className="mb-6 p-5 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-2xl border-2 border-blue-400/50 backdrop-blur-sm shadow-xl">
+                <div className="flex items-center gap-3">
+                    <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 shadow-lg">
+                        <icons.Info className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                        <p className="text-sm text-blue-600 font-medium">Current Minting Fee</p>
+                        <p className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+                            {typeof window.ethers !== 'undefined' ? window.ethers.formatEther(mintingFee || '0') : 'Loading...'} ETH
+                        </p>
+                        <p className="text-xs text-gray-600">for {assetType} NFT</p>
+                    </div>
+                </div>
             </div>
 
             {/* NFT Minting Form */}
             <form onSubmit={handleSubmit} className="space-y-5">
                 {/* NFT Details Section */}
-                <div className="bg-gray-50 p-5 rounded-lg border border-gray-200 shadow-inner">
-                    <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2"><icons.Info className="w-5 h-5"/> NFT Details</h3>
+                <div className="bg-gradient-to-br from-slate-50 to-blue-50/50 p-6 rounded-2xl border-2 border-blue-200/50 shadow-xl backdrop-blur-sm hover:shadow-2xl transition-shadow duration-300">
+                    <div className="flex items-center gap-3 mb-5">
+                        <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 shadow-md">
+                            <icons.Info className="w-5 h-5 text-white"/>
+                        </div>
+                        <h3 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">NFT Details</h3>
+                    </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="form-group">
                             <label className="block text-gray-700 text-sm font-semibold mb-2">Name:</label>
                             <input type="text" value={name} onChange={(e) => setName(e.target.value)} required 
-                                   className="w-full px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out" />
+                                   className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-blue-400" />
                         </div>
                         <div className="form-group">
                             <label className="block text-gray-700 text-sm font-semibold mb-2">Issuer:</label>
                             <input type="text" value={issuer} onChange={(e) => setIssuer(e.target.value)} required 
-                                   className="w-full px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out" />
+                                   className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-blue-400" />
                         </div>
                         <div className="form-group">
                             <label className="block text-gray-700 text-sm font-semibold mb-2">Asset Type:</label>
                             <select value={assetType} onChange={(e) => setAssetType(e.target.value)}
-                                    className="w-full px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out">
+                                    className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-blue-400 cursor-pointer">
                                 <option value="Silver">Silver</option>
                                 <option value="Gold">Gold</option>
                             </select>
@@ -415,35 +430,40 @@ function MintingPage({
                         <div className="form-group">
                             <label className="block text-gray-700 text-sm font-semibold mb-2 flex items-center gap-1"><icons.Calendar className="w-4 h-4"/> Asset Year:</label>
                             <input type="number" value={assetYear} onChange={(e) => setAssetYear(e.target.value)} required 
-                                   className="w-full px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out" />
+                                   className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-blue-400" />
                         </div>
                         <div className="form-group">
                             <label className="block text-gray-700 text-sm font-semibold mb-2 flex items-center gap-1"><icons.Globe className="w-4 h-4"/> Asset Country:</label>
                             <input type="text" value={assetCountry} onChange={(e) => setAssetCountry(e.target.value)} required 
-                                   className="w-full px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out" />
+                                   className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-blue-400" />
                         </div>
                         <div className="form-group">
                             <label className="block text-gray-700 text-sm font-semibold mb-2 flex items-center gap-1"><icons.Globe className="w-4 h-4"/> Creator Country:</label>
                             <input type="text" value={creatorCountry} onChange={(e) => setCreatorCountry(e.target.value)} required 
-                                   className="w-full px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out" />
+                                   className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-blue-400" />
                         </div>
                     </div>
                 </div>
 
                 {/* Asset Specifications Section */}
-                <div className="bg-gray-50 p-5 rounded-lg border border-gray-200 shadow-inner">
-                    <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2"><icons.Hash className="w-5 h-5"/> Asset Specifications</h3>
+                <div className="bg-gradient-to-br from-slate-50 to-purple-50/50 p-6 rounded-2xl border-2 border-purple-200/50 shadow-xl backdrop-blur-sm hover:shadow-2xl transition-shadow duration-300">
+                    <div className="flex items-center gap-3 mb-5">
+                        <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-pink-600 shadow-md">
+                            <icons.Hash className="w-5 h-5 text-white"/>
+                        </div>
+                        <h3 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Asset Specifications</h3>
+                    </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="form-group">
                             <label className="block text-gray-700 text-sm font-semibold mb-2">Weight (grams):</label>
                             <input type="number" step="any" value={weightGramsInput} onChange={(e) => setWeightGramsInput(e.target.value)} required 
-                                   className="w-full px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out" />
+                                   className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-blue-400" />
                             <small className="text-xs text-gray-500 mt-1 block">Enter actual weight (e.g., 2.7, 100.05).</small>
                         </div>
                         <div className="form-group">
                             <label className="block text-gray-700 text-sm font-semibold mb-2">Asset Name:</label>
                             <input type="text" value={assetName} onChange={(e) => setAssetName(e.target.value)} required 
-                                   className="w-full px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out" />
+                                   className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-blue-400" />
                         </div>
                         <div className="form-group col-span-full">
                             <label className="block text-gray-700 text-sm font-semibold mb-2 flex items-center gap-1"><icons.Percent className="w-4 h-4"/> Purity Percentage (%):</label>
@@ -453,7 +473,7 @@ function MintingPage({
                                 value={purityPercentageInput} 
                                 onChange={handlePurityChange} 
                                 required 
-                                className="w-full px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out" 
+                                className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-blue-400" 
                             />
                             <small className="text-xs text-gray-500 mt-1 block">Enter actual purity percentage (e.g., 99.9, 99.999).</small>
                             {purityWarning && (
@@ -474,7 +494,7 @@ function MintingPage({
                         <div className="form-group">
                             <label className="block text-gray-700 text-sm font-semibold mb-2">Quantity:</label>
                             <input type="number" value={quantity} onChange={(e) => setQuantity(e.target.value)} required 
-                                   className="w-full px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out" />
+                                   className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-blue-400" />
                         </div>
                         <div className="form-group col-span-full flex items-center">
                             <input type="checkbox" checked={isFungible} onChange={(e) => setIsFungible(e.target.checked)} 
@@ -485,8 +505,13 @@ function MintingPage({
                 </div>
 
                 {/* Image Upload Section */}
-                <div className="bg-gray-50 p-5 rounded-lg border border-gray-200 shadow-inner">
-                    <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2"><icons.Image className="w-5 h-5"/> Image Uploads</h3>
+                <div className="bg-gradient-to-br from-slate-50 to-cyan-50/50 p-6 rounded-2xl border-2 border-cyan-200/50 shadow-xl backdrop-blur-sm hover:shadow-2xl transition-shadow duration-300">
+                    <div className="flex items-center gap-3 mb-5">
+                        <div className="p-2 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 shadow-md">
+                            <icons.Image className="w-5 h-5 text-white"/>
+                        </div>
+                        <h3 className="text-xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent">Image Uploads</h3>
+                    </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="form-group">
                             <label className="block text-gray-700 text-sm font-semibold mb-2">Image File 1:</label>
@@ -498,9 +523,11 @@ function MintingPage({
                         <div className="form-group">
                             <label className="block text-gray-700 text-sm font-semibold mb-2">Image File 2:</label>
                             <input type="file" accept="image/*" onChange={(e) => setImageFile2(e.target.files[0])} required 
-                                   className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 
-                                              file:rounded-full file:border-0 file:text-sm file:font-semibold
-                                              file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer" />
+                                   className="block w-full text-sm text-gray-600 file:mr-4 file:py-3 file:px-6 
+                                              file:rounded-xl file:border-0 file:text-sm file:font-bold
+                                              file:bg-gradient-to-r file:from-blue-500 file:to-cyan-600 file:text-white 
+                                              hover:file:from-blue-600 hover:file:to-cyan-700 file:shadow-lg 
+                                              hover:file:shadow-xl file:transition-all file:duration-300 cursor-pointer" />
                         </div>
                     </div>
                 </div>
@@ -508,31 +535,47 @@ function MintingPage({
                 <button 
                     type="submit" 
                     disabled={!connectedAccount || !isCorrectNetwork || mintingIsLoading}
-                    className="w-full mt-6 px-8 py-3 rounded-full text-white font-extrabold text-lg
-                               bg-gradient-to-r from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 
-                               transition-all duration-300 ease-in-out shadow-xl hover:shadow-2xl 
-                               disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3">
-                    {mintingIsLoading ? <div className="spinner"></div> : null}
-                    {mintingIsLoading ? 'Minting in progress...' : 'Mint NFT'}
+                    className="relative w-full mt-8 px-8 py-4 rounded-2xl text-white font-extrabold text-xl overflow-hidden group
+                               bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 
+                               hover:shadow-[0_0_40px_rgba(139,92,246,0.6)] 
+                               transition-all duration-300 ease-in-out shadow-2xl hover:scale-105 
+                               disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 
+                               flex items-center justify-center gap-3">
+                    <span className="relative z-10 flex items-center gap-3">
+                        {mintingIsLoading ? <div className="spinner !border-l-white"></div> : <icons.Coins className="w-6 h-6" />}
+                        {mintingIsLoading ? 'Minting in progress...' : 'Mint NFT'}
+                    </span>
+                    {!mintingIsLoading && (
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent shimmer"></div>
+                    )}
                 </button>
             </form>
 
             {/* Minting Status Message */}
             {mintingStatus && (
-                <div className={`mt-6 p-4 rounded-lg text-center font-medium flex items-center gap-2 justify-center
-                                  ${mintingStatus.includes('Error') || mintingStatus.includes('failed') || mintingStatus.includes('cancelled') ? 'bg-red-100 text-red-700 border border-red-300' : 'bg-blue-100 text-blue-700 border border-blue-300'}`}>
-                    {mintingStatus.includes('Error') || mintingStatus.includes('failed') || mintingStatus.includes('cancelled') ? <icons.XCircle className="w-5 h-5"/> : <icons.CheckCircle className="w-5 h-5"/>}
-                    <p>{mintingStatus}</p>
+                <div className={`mt-6 p-5 rounded-2xl text-center font-semibold flex items-center gap-3 justify-center shadow-xl backdrop-blur-sm border-2
+                                  ${mintingStatus.includes('Error') || mintingStatus.includes('failed') || mintingStatus.includes('cancelled') 
+                                    ? 'bg-gradient-to-r from-red-500/20 to-pink-500/20 text-red-700 border-red-400/50' 
+                                    : 'bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-blue-700 border-blue-400/50'}`}>
+                    <div className={`p-2 rounded-lg ${mintingStatus.includes('Error') || mintingStatus.includes('failed') || mintingStatus.includes('cancelled') ? 'bg-red-500' : 'bg-blue-500'}`}>
+                        {mintingStatus.includes('Error') || mintingStatus.includes('failed') || mintingStatus.includes('cancelled') ? <icons.XCircle className="w-5 h-5 text-white"/> : <icons.CheckCircle className="w-5 h-5 text-white"/>}
+                    </div>
+                    <p className="text-base">{mintingStatus}</p>
                 </div>
             )}
 
             {/* Validator Dashboard Section (moved from App.js, now within MintingPage) */}
             {isValidator && (
-                <div className="mt-8 p-6 bg-purple-50 border border-purple-200 rounded-xl shadow-lg">
-                    <h3 className="text-2xl font-bold text-purple-700 mb-4 text-center flex items-center justify-center gap-2">
-                        <icons.UserCheck className="w-7 h-7" /> Validator Dashboard
-                    </h3>
-                    <p className="text-lg text-purple-800 font-medium mb-4 text-center">
+                <div className="mt-8 p-6 bg-gradient-to-br from-purple-500/20 to-pink-500/20 border-2 border-purple-400/50 rounded-2xl shadow-2xl backdrop-blur-sm">
+                    <div className="flex items-center justify-center gap-3 mb-4">
+                        <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 shadow-lg">
+                            <icons.UserCheck className="w-7 h-7 text-white" />
+                        </div>
+                        <h3 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                            Validator Dashboard
+                        </h3>
+                    </div>
+                    <p className="text-lg text-purple-800 font-semibold mb-6 text-center">
                         As a validator, you can view and verify pending NFTs.
                     </p>
 
@@ -542,16 +585,24 @@ function MintingPage({
                             <span>Loading unverified NFTs...</span>
                         </div>
                     ) : unverifiedNfts.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                             {unverifiedNfts.map((nft) => (
-                                <div key={nft.id} className="bg-white p-4 rounded-lg shadow-md border border-purple-300">
-                                    <h4 className="text-lg font-semibold text-gray-800">NFT ID: {nft.id} - {nft.name}</h4>
-                                    <p className="text-sm text-gray-600">Issuer: {nft.creator}</p>
-                                    <p className="text-sm text-gray-600">Asset Type: {nft.assetType}</p>
-                                    <p className="text-sm text-gray-600">Status: <span className="font-bold text-orange-500">{nft.status}</span></p>
-                                    {/* Add more details or a "Verify" button here */}
+                                <div key={nft.id} className="bg-white/90 p-5 rounded-xl shadow-lg border-2 border-purple-300/50 backdrop-blur-sm hover:shadow-2xl hover:scale-105 transition-all duration-300">
+                                    <h4 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-3">
+                                        NFT ID: {nft.id} - {nft.name}
+                                    </h4>
+                                    <div className="space-y-2 mb-4">
+                                        <p className="text-sm text-gray-700"><span className="font-semibold">Issuer:</span> {nft.creator.substring(0, 6)}...{nft.creator.substring(nft.creator.length - 4)}</p>
+                                        <p className="text-sm text-gray-700"><span className="font-semibold">Asset Type:</span> {nft.assetType}</p>
+                                        <p className="text-sm text-gray-700">
+                                            <span className="font-semibold">Status:</span> 
+                                            <span className="ml-2 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-orange-500 to-yellow-500 text-white shadow-md">
+                                                {nft.status}
+                                            </span>
+                                        </p>
+                                    </div>
                                     <button 
-                                        className="mt-3 w-full px-4 py-2 rounded-md text-white font-semibold bg-blue-500 hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="w-full px-4 py-3 rounded-xl text-white font-bold bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 hover:shadow-[0_0_20px_rgba(59,130,246,0.5)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                                         onClick={() => showToast(`Verification logic for NFT ID ${nft.id} not implemented yet.`, 'info')}
                                     >
                                         Verify NFT

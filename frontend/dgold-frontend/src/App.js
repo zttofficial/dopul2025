@@ -48,6 +48,9 @@ function App() { // Renamed from NFTMetadataForm to App
     // State for current page/tab, now derived from URL
     const [currentPage, setCurrentPage] = useState('mint'); // Default to 'mint'
 
+    // State for user info modal
+    const [showUserInfo, setShowUserInfo] = useState(false);
+
     // Ref to track manual disconnect
     const isManuallyDisconnected = useRef(false); 
 
@@ -230,15 +233,18 @@ function App() { // Renamed from NFTMetadataForm to App
         }
 
         const handleAccountsChanged = (accounts) => {
+            // If manually disconnected, ignore all account changes
             if (isManuallyDisconnected.current) {
-                isManuallyDisconnected.current = false; // Reset after handling manual disconnect
+                console.log('Manual disconnect active, ignoring account change');
                 return;
             }
+            
             if (accounts.length > 0) {
                 setConnectedAccount(accounts[0]);
                 window.ethereum.request({ method: 'eth_chainId' }).then(chain => handleChainChanged(chain));
             } else {
-                // If accounts become empty, it means wallet is disconnected
+                // If accounts become empty, it means wallet is disconnected from MetaMask side
+                // This is a MetaMask-initiated disconnect, so we should allow future reconnections
                 setConnectedAccount('');
                 setWalletStatus('Wallet disconnected. Please click "Connect Wallet".'); 
                 setIsCorrectNetwork(false); 
@@ -246,6 +252,7 @@ function App() { // Renamed from NFTMetadataForm to App
                 setIsValidator(false); 
                 setIsContractOwner(false); 
                 showToast('Wallet disconnected.', 'info');
+                // Don't reset isManuallyDisconnected here - let user manually reconnect
             }
         };
 
@@ -272,17 +279,20 @@ function App() { // Renamed from NFTMetadataForm to App
             window.ethereum.on('accountsChanged', handleAccountsChanged);
             window.ethereum.on('chainChanged', handleChainChanged);
 
-            window.ethereum.request({ method: 'eth_accounts' })
-                .then(accounts => {
-                    if (accounts.length > 0) {
-                        setConnectedAccount(accounts[0]);
-                        window.ethereum.request({ method: 'eth_chainId' }).then(handleChainChanged);
-                        setWalletStatus(`Wallet connected: ${accounts[0].substring(0, 6)}...${accounts[0].substring(accounts[0].length - 4)}`); 
-                    }
-                })
-                .catch(error => {
-                    console.error("Error checking initial accounts:", error); 
-                });
+            // Only auto-connect if user hasn't manually disconnected
+            if (!isManuallyDisconnected.current) {
+                window.ethereum.request({ method: 'eth_accounts' })
+                    .then(accounts => {
+                        if (accounts.length > 0 && !isManuallyDisconnected.current) {
+                            setConnectedAccount(accounts[0]);
+                            window.ethereum.request({ method: 'eth_chainId' }).then(handleChainChanged);
+                            setWalletStatus(`Wallet connected: ${accounts[0].substring(0, 6)}...${accounts[0].substring(accounts[0].length - 4)}`); 
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error checking initial accounts:", error); 
+                    });
+            }
         }
         
         return () => {
@@ -303,6 +313,8 @@ function App() { // Renamed from NFTMetadataForm to App
         }
     }, [connectedAccount, isCorrectNetwork, fetchDPMSBalance, checkValidatorStatus, fetchContractOwner]);
 
+    // No need for click outside handler - backdrop handles closing
+
 
     // Helper to render HTML in wallet status message (for the MetaMask download link)
     function createMarkup(htmlString) {
@@ -310,12 +322,22 @@ function App() { // Renamed from NFTMetadataForm to App
     }
 
     return (
-        <div className="relative min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 font-inter text-gray-800">
+        <div className="relative min-h-screen overflow-hidden flex flex-col items-center p-4 sm:p-6 lg:p-8 font-inter text-gray-800">
+            {/* Animated Background */}
+            <div className="fixed inset-0 z-0 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+                <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
+                <div className="absolute top-0 left-0 w-full h-full">
+                    <div className="floating-orb orb-1"></div>
+                    <div className="floating-orb orb-2"></div>
+                    <div className="floating-orb orb-3"></div>
+                </div>
+            </div>
+            
             {/* Tailwind CSS CDN and Google Fonts for Inter */}
             <script src="https://cdn.tailwindcss.com"></script>
             <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 
-            {/* Custom CSS for spinner and toast */}
+            {/* Custom CSS for animations and effects */}
             <style>{`
                 input[type='number']::-webkit-inner-spin-button,
                 input[type='number']::-webkit-outer-spin-button {
@@ -323,11 +345,80 @@ function App() { // Renamed from NFTMetadataForm to App
                     margin: 0;
                 }
                 input[type='number'] {
-                    -moz-appearance: textfield; /* Firefox */
+                    -moz-appearance: textfield;
                 }
+                
+                /* Animated Grid Background */
+                .bg-grid-pattern {
+                    background-image: 
+                        linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+                    background-size: 50px 50px;
+                    animation: gridMove 20s linear infinite;
+                }
+                @keyframes gridMove {
+                    0% { transform: translate(0, 0); }
+                    100% { transform: translate(50px, 50px); }
+                }
+                
+                /* Floating Orbs */
+                .floating-orb {
+                    position: absolute;
+                    border-radius: 50%;
+                    filter: blur(60px);
+                    opacity: 0.3;
+                    animation: float 20s ease-in-out infinite;
+                }
+                .orb-1 {
+                    width: 400px;
+                    height: 400px;
+                    background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+                    top: -200px;
+                    left: -200px;
+                    animation-delay: 0s;
+                }
+                .orb-2 {
+                    width: 500px;
+                    height: 500px;
+                    background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+                    bottom: -250px;
+                    right: -250px;
+                    animation-delay: 7s;
+                }
+                .orb-3 {
+                    width: 350px;
+                    height: 350px;
+                    background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
+                    top: 50%;
+                    left: 50%;
+                    animation-delay: 14s;
+                }
+                @keyframes float {
+                    0%, 100% { transform: translate(0, 0) scale(1); }
+                    33% { transform: translate(100px, -100px) scale(1.1); }
+                    66% { transform: translate(-100px, 100px) scale(0.9); }
+                }
+                
+                /* Glassmorphism */
+                .glass {
+                    background: rgba(255, 255, 255, 0.1);
+                    backdrop-filter: blur(10px);
+                    -webkit-backdrop-filter: blur(10px);
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                }
+                
+                .glass-strong {
+                    background: rgba(255, 255, 255, 0.95);
+                    backdrop-filter: blur(20px);
+                    -webkit-backdrop-filter: blur(20px);
+                    border: 1px solid rgba(255, 255, 255, 0.3);
+                    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+                }
+                
+                /* Spinner */
                 .spinner {
-                    border: 4px solid rgba(0, 0, 0, 0.1);
-                    border-left-color: #ffffff;
+                    border: 4px solid rgba(255, 255, 255, 0.3);
+                    border-left-color: #667eea;
                     border-radius: 50%;
                     width: 24px;
                     height: 24px;
@@ -336,6 +427,32 @@ function App() { // Renamed from NFTMetadataForm to App
                 @keyframes spin {
                     to { transform: rotate(360deg); }
                 }
+                
+                /* Shimmer Effect */
+                .shimmer {
+                    position: relative;
+                    overflow: hidden;
+                }
+                .shimmer::after {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: -100%;
+                    width: 100%;
+                    height: 100%;
+                    background: linear-gradient(
+                        90deg,
+                        transparent,
+                        rgba(255, 255, 255, 0.3),
+                        transparent
+                    );
+                    animation: shimmer 3s infinite;
+                }
+                @keyframes shimmer {
+                    to { left: 100%; }
+                }
+                
+                /* Toast Notifications */
                 .toast-container {
                     position: fixed;
                     top: 20px;
@@ -346,38 +463,70 @@ function App() { // Renamed from NFTMetadataForm to App
                     gap: 10px;
                 }
                 .toast {
-                    padding: 12px 20px;
-                    border-radius: 8px;
-                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                    padding: 14px 24px;
+                    border-radius: 12px;
+                    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
                     display: flex;
                     align-items: center;
-                    gap: 10px;
-                    min-width: 250px;
-                    max-width: 350px;
-                    animation: slideInRight 0.5s forwards, fadeOut 0.5s 4.5s forwards;
+                    gap: 12px;
+                    min-width: 280px;
+                    max-width: 400px;
+                    animation: slideInRight 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards, 
+                              fadeOut 0.5s ease-in 4.5s forwards;
+                    backdrop-filter: blur(10px);
                 }
                 .toast.success {
-                    background-color: #d4edda;
-                    color: #155724;
-                    border: 1px solid #c3e6cb;
+                    background: linear-gradient(135deg, rgba(16, 185, 129, 0.95) 0%, rgba(5, 150, 105, 0.95) 100%);
+                    color: #fff;
+                    border: 1px solid rgba(255, 255, 255, 0.3);
                 }
                 .toast.error {
-                    background-color: #f8d7da;
-                    color: #721c24;
-                    border: 1px solid #f5c6cb;
+                    background: linear-gradient(135deg, rgba(239, 68, 68, 0.95) 0%, rgba(220, 38, 38, 0.95) 100%);
+                    color: #fff;
+                    border: 1px solid rgba(255, 255, 255, 0.3);
                 }
                 .toast.info {
-                    background-color: #d1ecf1;
-                    color: #0c5460;
-                    border: 1px solid #bee5eb;
+                    background: linear-gradient(135deg, rgba(59, 130, 246, 0.95) 0%, rgba(37, 99, 235, 0.95) 100%);
+                    color: #fff;
+                    border: 1px solid rgba(255, 255, 255, 0.3);
                 }
                 @keyframes slideInRight {
-                    from { transform: translateX(100%); opacity: 0; }
-                    to { transform: translateX(0); opacity: 1; }
+                    from { transform: translateX(400px) scale(0.8); opacity: 0; }
+                    to { transform: translateX(0) scale(1); opacity: 1; }
                 }
                 @keyframes fadeOut {
-                    from { opacity: 1; }
-                    to { opacity: 0; }
+                    from { opacity: 1; transform: scale(1); }
+                    to { opacity: 0; transform: scale(0.9); }
+                }
+                
+                /* Pulse Animation */
+                @keyframes pulse {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: 0.5; }
+                }
+                
+                /* Slide In from Right Animation */
+                @keyframes slideInFromRight {
+                    from {
+                        opacity: 0;
+                        transform: translateX(100%);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateX(0);
+                    }
+                }
+                .animate-slideInFromRight {
+                    animation: slideInFromRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+                }
+                
+                /* Fade In Animation */
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+                .animate-fadeIn {
+                    animation: fadeIn 0.2s ease-out forwards;
                 }
             `}</style>
 
@@ -397,22 +546,25 @@ function App() { // Renamed from NFTMetadataForm to App
             )}
 
             {/* Header and Wallet Connection */}
-            <header className="w-full max-w-4xl flex justify-between items-center mb-8 p-4 bg-white rounded-xl shadow-lg">
-                <h1 className="text-3xl sm:text-4xl font-extrabold text-blue-700 tracking-tight">
-                    Dopul NFT Platform
-                </h1>
-                <div className="flex flex-col items-end space-y-2">
-                    {walletStatus && (
-                        <div className="bg-blue-50 border border-blue-200 text-blue-800 p-2 text-xs sm:text-sm rounded-lg text-center font-medium shadow-md max-w-xs transition-all duration-300 ease-in-out">
-                            <p dangerouslySetInnerHTML={createMarkup(walletStatus)}></p>
+            <header className="relative z-10 w-full max-w-4xl mx-auto mb-6">
+                <div className="glass-strong p-4 rounded-2xl shadow-2xl flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center shadow-lg shimmer">
+                            <icons.Coins className="w-7 h-7 text-white" />
                         </div>
-                    )}
+                        <h1 className="text-2xl sm:text-3xl font-extrabold bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 bg-clip-text text-transparent tracking-tight">
+                            Dopul NFT
+                        </h1>
+                    </div>
+                    
                     {!connectedAccount ? (
                         <button 
                             type="button" 
-                            className="flex items-center gap-2 px-5 py-2 text-sm rounded-full text-white font-semibold 
-                                       bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 
-                                       transition-all duration-300 ease-in-out shadow-lg hover:shadow-xl" 
+                            className="flex items-center gap-2 px-6 py-3 text-sm rounded-xl text-white font-bold 
+                                       bg-gradient-to-r from-emerald-500 via-green-500 to-teal-600 
+                                       hover:shadow-[0_0_30px_rgba(16,185,129,0.6)] 
+                                       transition-all duration-300 ease-in-out shadow-lg hover:scale-105 
+                                       disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100" 
                             onClick={connectWallet}
                             disabled={isLoading}
                         >
@@ -421,35 +573,174 @@ function App() { // Renamed from NFTMetadataForm to App
                         </button>
                     ) : (
                         <button 
-                            type="button" 
-                            className="flex items-center gap-2 px-5 py-2 text-sm rounded-full text-white font-semibold 
-                                       bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 
-                                       transition-all duration-300 ease-in-out shadow-lg hover:shadow-xl" 
-                            onClick={disconnectWallet} // Use the new disconnectWallet function
-                            disabled={isLoading}
+                            onClick={() => setShowUserInfo(!showUserInfo)}
+                            className="flex items-center gap-3 px-5 py-3 rounded-xl bg-white/90 border-2 border-purple-400/60 backdrop-blur-sm hover:border-purple-500 hover:bg-white transition-all duration-300 shadow-lg hover:shadow-xl group"
                         >
-                            <icons.XCircle className="w-5 h-5" />
-                            Disconnect Wallet
+                            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center shadow-md">
+                                <icons.Wallet className="w-5 h-5 text-white" />
+                            </div>
+                            <div className="text-left">
+                                <p className="text-xs text-purple-600 font-semibold">Connected</p>
+                                <p className="text-sm font-bold text-gray-800 font-mono">
+                                    {connectedAccount.substring(0, 6)}...{connectedAccount.substring(connectedAccount.length - 4)}
+                                </p>
+                            </div>
+                            <svg className={`w-5 h-5 text-purple-600 transition-transform duration-300 ${showUserInfo ? 'rotate-180' : ''}`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
                         </button>
                     )}
                 </div>
             </header>
 
+            {/* User Info Panel - Collapsible */}
+            {showUserInfo && connectedAccount && (
+                <div className="relative z-10 w-full max-w-4xl mx-auto mb-6 animate-slideInFromRight">
+                    <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-2xl border-2 border-purple-400/60 p-5">
+                        {/* Compact Two-Column Layout */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            {/* Left Column: Info */}
+                            <div className="space-y-3.5">
+                                {/* Wallet Address */}
+                                <div>
+                                    <h3 className="text-xs font-bold text-purple-600 uppercase tracking-wide mb-2 flex items-center gap-1.5">
+                                        <icons.Wallet className="w-3.5 h-3.5" />
+                                        Wallet Address
+                                    </h3>
+                                    <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-lg p-3 border border-purple-200 mb-2">
+                                        <p className="text-xs font-mono text-gray-800 break-all leading-relaxed">{connectedAccount}</p>
+                                    </div>
+                                    <button 
+                                        onClick={() => {
+                                            navigator.clipboard.writeText(connectedAccount);
+                                            showToast('Address copied!', 'success');
+                                        }}
+                                        className="w-full px-4 py-2.5 text-sm rounded-lg text-white font-bold bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                                    >
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                        </svg>
+                                        Copy Address
+                                    </button>
+                                </div>
+                                
+                                {/* Network Status */}
+                                <div>
+                                    <h3 className="text-xs font-bold text-purple-600 uppercase tracking-wide mb-2 flex items-center gap-1.5">
+                                        <icons.Network className="w-3.5 h-3.5" />
+                                        Network
+                                    </h3>
+                                    <div className={`rounded-lg p-3 border-2 ${isCorrectNetwork ? 'bg-green-50 border-green-300' : 'bg-orange-50 border-orange-300'}`}>
+                                        <p className={`text-sm font-bold ${isCorrectNetwork ? 'text-green-700' : 'text-orange-700'}`}>
+                                            {isCorrectNetwork ? '✓ ' : '⚠ '}{connectedNetwork}
+                                        </p>
+                                    </div>
+                                    {!isCorrectNetwork && (
+                                        <button 
+                                            onClick={switchToSepolia}
+                                            className="mt-2 w-full px-4 py-2 text-sm rounded-lg font-bold text-white bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 transition-all shadow-md flex items-center justify-center gap-2"
+                                        >
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                            </svg>
+                                            Switch Network
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Right Column: Balance, Role & Action */}
+                            <div className="space-y-3.5">
+                                {/* DPMS Balance */}
+                                <div>
+                                    <h3 className="text-xs font-bold text-purple-600 uppercase tracking-wide mb-2 flex items-center gap-1.5">
+                                        <icons.DollarSign className="w-3.5 h-3.5" />
+                                        DPMS Balance
+                                    </h3>
+                                    <div className="bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg p-3 border-2 border-purple-300">
+                                        <p className="text-2xl font-extrabold text-center bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent leading-tight">
+                                            {dpmsBalance}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* User Role */}
+                                <div>
+                                    <h3 className="text-xs font-bold text-purple-600 uppercase tracking-wide mb-2 flex items-center gap-1.5">
+                                        <icons.UserCheck className="w-3.5 h-3.5" />
+                                        Role
+                                    </h3>
+                                    {isContractOwner && (
+                                        <div className="px-4 py-2.5 rounded-lg bg-gradient-to-r from-red-100 to-pink-200 border-2 border-red-300 shadow-md">
+                                            <p className="text-red-800 text-sm font-bold flex items-center justify-center gap-2">
+                                                <icons.Settings className="w-4 h-4" />
+                                                Contract Owner
+                                            </p>
+                                        </div>
+                                    )}
+                                    {isValidator && !isContractOwner && (
+                                        <div className="px-4 py-2.5 rounded-lg bg-gradient-to-r from-purple-100 to-blue-200 border-2 border-purple-300 shadow-md">
+                                            <p className="text-purple-800 text-sm font-bold flex items-center justify-center gap-2">
+                                                <icons.UserCheck className="w-4 h-4" />
+                                                Validator
+                                            </p>
+                                        </div>
+                                    )}
+                                    {!isValidator && !isContractOwner && (
+                                        <div className="px-4 py-2.5 rounded-lg bg-gradient-to-r from-gray-100 to-gray-300 border-2 border-gray-400 shadow-md">
+                                            <p className="text-gray-800 text-sm font-bold flex items-center justify-center gap-2">
+                                                <icons.Wallet className="w-4 h-4" />
+                                                Standard User
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Disconnect Button */}
+                                <button 
+                                    onClick={() => {
+                                        disconnectWallet();
+                                        setShowUserInfo(false);
+                                    }}
+                                    className="w-full px-4 py-2.5 rounded-lg text-white font-bold text-sm
+                                               bg-gradient-to-r from-rose-500 to-red-600 
+                                               hover:from-rose-600 hover:to-red-700
+                                               transition-all shadow-md hover:shadow-lg
+                                               flex items-center justify-center gap-2"
+                                >
+                                    <icons.XCircle className="w-5 h-5" />
+                                    Disconnect Wallet
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Main Content Area */}
-            <main className="w-full max-w-4xl bg-white p-6 sm:p-8 rounded-xl shadow-2xl transform hover:scale-[1.005] transition-transform duration-300 ease-in-out">
+            <main className="relative z-10 w-full max-w-4xl mx-auto glass-strong p-6 sm:p-8 rounded-2xl shadow-2xl transform hover:shadow-[0_20px_60px_rgba(0,0,0,0.3)] transition-all duration-500 ease-in-out">
                 {/* Tab Navigation (only for Mint and Validator) */}
-                {currentPage !== 'admin' && ( // Hide tabs if on admin page
-                    <div className="flex justify-center mb-6">
+                {currentPage !== 'admin' && (
+                    <div className="flex justify-center mb-8 gap-2">
                         <button
-                            className={`px-6 py-3 rounded-l-lg text-lg font-semibold transition-all duration-200
-                                        ${currentPage === 'mint' ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
+                            className={`relative px-8 py-4 rounded-xl text-lg font-bold transition-all duration-300 overflow-hidden group
+                                        ${currentPage === 'mint' 
+                                            ? 'bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 text-white shadow-lg shadow-blue-500/50' 
+                                            : 'bg-white/80 text-gray-700 hover:bg-white hover:shadow-lg'}`}
                             onClick={() => setCurrentPage('mint')}
                         >
-                            <span className="flex items-center gap-2"><icons.Coins className="w-5 h-5" /> Mint NFT</span>
+                            <span className="relative z-10 flex items-center gap-2">
+                                <icons.Coins className="w-6 h-6" /> Mint NFT
+                            </span>
+                            {currentPage === 'mint' && (
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent shimmer"></div>
+                            )}
                         </button>
                         <button
-                            className={`px-6 py-3 rounded-r-lg text-lg font-semibold transition-all duration-200
-                                        ${currentPage === 'validator' && isValidator ? 'bg-purple-600 text-white shadow-md' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}
+                            className={`relative px-8 py-4 rounded-xl text-lg font-bold transition-all duration-300 overflow-hidden group
+                                        ${currentPage === 'validator' && isValidator
+                                            ? 'bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 text-white shadow-lg shadow-purple-500/50' 
+                                            : 'bg-white/80 text-gray-700 hover:bg-white hover:shadow-lg'}
                                         ${!isValidator ? 'opacity-50 cursor-not-allowed' : ''}`}
                             onClick={() => {
                                 if (isValidator) {
@@ -458,9 +749,14 @@ function App() { // Renamed from NFTMetadataForm to App
                                     showToast('You are not registered as a validator. Only designated addresses can access this dashboard.', 'info');
                                 }
                             }}
-                            disabled={!connectedAccount || !isCorrectNetwork} // Disable if not connected or wrong network
+                            disabled={!connectedAccount || !isCorrectNetwork}
                         >
-                            <span className="flex items-center gap-2"><icons.UserCheck className="w-5 h-5" /> Validator Dashboard</span>
+                            <span className="relative z-10 flex items-center gap-2">
+                                <icons.UserCheck className="w-6 h-6" /> Validator Dashboard
+                            </span>
+                            {currentPage === 'validator' && isValidator && (
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent shimmer"></div>
+                            )}
                         </button>
                     </div>
                 )}
