@@ -600,28 +600,30 @@ function App() { // Renamed from NFTMetadataForm to App
                         {/* Compact Two-Column Layout */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                             {/* Left Column: Info */}
-                            <div className="space-y-3.5">
+                            <div className="space-y-4">
                                 {/* Wallet Address */}
                                 <div>
                                     <h3 className="text-xs font-bold text-purple-600 uppercase tracking-wide mb-2 flex items-center gap-1.5">
                                         <icons.Wallet className="w-3.5 h-3.5" />
                                         Wallet Address
                                     </h3>
-                                    <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-lg p-3 border border-purple-200 mb-2">
-                                        <p className="text-xs font-mono text-gray-800 break-all leading-relaxed">{connectedAccount}</p>
+                                    <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-lg border border-purple-200 overflow-hidden">
+                                        <div className="p-3 border-b border-purple-100">
+                                            <p className="text-xs font-mono text-gray-800 break-all leading-relaxed">{connectedAccount}</p>
+                                        </div>
+                                        <button 
+                                            onClick={() => {
+                                                navigator.clipboard.writeText(connectedAccount);
+                                                showToast('Address copied!', 'success');
+                                            }}
+                                            className="w-full px-3 py-2 text-xs font-semibold text-purple-700 hover:text-purple-900 bg-purple-50 hover:bg-purple-100 transition-all flex items-center justify-center gap-2"
+                                        >
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                            </svg>
+                                            Copy Address
+                                        </button>
                                     </div>
-                                    <button 
-                                        onClick={() => {
-                                            navigator.clipboard.writeText(connectedAccount);
-                                            showToast('Address copied!', 'success');
-                                        }}
-                                        className="w-full px-4 py-2.5 text-sm rounded-lg text-white font-bold bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
-                                    >
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                        </svg>
-                                        Copy Address
-                                    </button>
                                 </div>
                                 
                                 {/* Network Status */}
@@ -650,14 +652,14 @@ function App() { // Renamed from NFTMetadataForm to App
                             </div>
 
                             {/* Right Column: Balance, Role & Action */}
-                            <div className="space-y-3.5">
+                            <div className="space-y-4">
                                 {/* DPMS Balance */}
                                 <div>
                                     <h3 className="text-xs font-bold text-purple-600 uppercase tracking-wide mb-2 flex items-center gap-1.5">
                                         <icons.DollarSign className="w-3.5 h-3.5" />
                                         DPMS Balance
                                     </h3>
-                                    <div className="bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg p-3 border-2 border-purple-300">
+                                    <div className="bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg p-4 border-2 border-purple-300">
                                         <p className="text-2xl font-extrabold text-center bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent leading-tight">
                                             {dpmsBalance}
                                         </p>
@@ -671,7 +673,7 @@ function App() { // Renamed from NFTMetadataForm to App
                                         Role
                                     </h3>
                                     {isContractOwner && (
-                                        <div className="px-4 py-2.5 rounded-lg bg-gradient-to-r from-red-100 to-pink-200 border-2 border-red-300 shadow-md">
+                                        <div className="px-4 py-3 rounded-lg bg-gradient-to-r from-red-100 to-pink-200 border-2 border-red-300 shadow-md">
                                             <p className="text-red-800 text-sm font-bold flex items-center justify-center gap-2">
                                                 <icons.Settings className="w-4 h-4" />
                                                 Contract Owner
@@ -679,7 +681,7 @@ function App() { // Renamed from NFTMetadataForm to App
                                         </div>
                                     )}
                                     {isValidator && !isContractOwner && (
-                                        <div className="px-4 py-2.5 rounded-lg bg-gradient-to-r from-purple-100 to-blue-200 border-2 border-purple-300 shadow-md">
+                                        <div className="px-4 py-3 rounded-lg bg-gradient-to-r from-purple-100 to-blue-200 border-2 border-purple-300 shadow-md">
                                             <p className="text-purple-800 text-sm font-bold flex items-center justify-center gap-2">
                                                 <icons.UserCheck className="w-4 h-4" />
                                                 Validator
@@ -687,7 +689,7 @@ function App() { // Renamed from NFTMetadataForm to App
                                         </div>
                                     )}
                                     {!isValidator && !isContractOwner && (
-                                        <div className="px-4 py-2.5 rounded-lg bg-gradient-to-r from-gray-100 to-gray-300 border-2 border-gray-400 shadow-md">
+                                        <div className="px-4 py-3 rounded-lg bg-gradient-to-r from-gray-100 to-gray-300 border-2 border-gray-400 shadow-md">
                                             <p className="text-gray-800 text-sm font-bold flex items-center justify-center gap-2">
                                                 <icons.Wallet className="w-4 h-4" />
                                                 Standard User
@@ -697,20 +699,22 @@ function App() { // Renamed from NFTMetadataForm to App
                                 </div>
 
                                 {/* Disconnect Button */}
-                                <button 
-                                    onClick={() => {
-                                        disconnectWallet();
-                                        setShowUserInfo(false);
-                                    }}
-                                    className="w-full px-4 py-2.5 rounded-lg text-white font-bold text-sm
-                                               bg-gradient-to-r from-rose-500 to-red-600 
-                                               hover:from-rose-600 hover:to-red-700
-                                               transition-all shadow-md hover:shadow-lg
-                                               flex items-center justify-center gap-2"
-                                >
-                                    <icons.XCircle className="w-5 h-5" />
-                                    Disconnect Wallet
-                                </button>
+                                <div className="pt-3">
+                                    <button 
+                                        onClick={() => {
+                                            disconnectWallet();
+                                            setShowUserInfo(false);
+                                        }}
+                                        className="w-full px-4 py-3 rounded-lg text-white font-bold text-sm
+                                                   bg-gradient-to-r from-rose-500 to-red-600 
+                                                   hover:from-rose-600 hover:to-red-700
+                                                   transition-all shadow-md hover:shadow-lg
+                                                   flex items-center justify-center gap-2"
+                                    >
+                                        <icons.XCircle className="w-5 h-5" />
+                                        Disconnect Wallet
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>

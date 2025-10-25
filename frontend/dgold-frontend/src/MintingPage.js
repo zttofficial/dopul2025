@@ -516,9 +516,11 @@ function MintingPage({
                         <div className="form-group">
                             <label className="block text-gray-700 text-sm font-semibold mb-2">Image File 1:</label>
                             <input type="file" accept="image/*" onChange={(e) => setImageFile1(e.target.files[0])} required 
-                                   className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 
-                                              file:rounded-full file:border-0 file:text-sm file:font-semibold
-                                              file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer" />
+                                   className="block w-full text-sm text-gray-600 file:mr-4 file:py-3 file:px-6 
+                                              file:rounded-xl file:border-0 file:text-sm file:font-bold
+                                              file:bg-gradient-to-r file:from-blue-500 file:to-cyan-600 file:text-white 
+                                              hover:file:from-blue-600 hover:file:to-cyan-700 file:shadow-lg 
+                                              hover:file:shadow-xl file:transition-all file:duration-300 cursor-pointer" />
                         </div>
                         <div className="form-group">
                             <label className="block text-gray-700 text-sm font-semibold mb-2">Image File 2:</label>
